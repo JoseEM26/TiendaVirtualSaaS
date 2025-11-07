@@ -1,0 +1,78 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  GENERAL_ADMIN
+  TENANT_ADMIN
+}
+
+model Tenant {
+  id          Int       @id @default(autoincrement())
+  name        String
+  logoUrl     String?
+  theme       String
+  description String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  products    Product[]
+  categories  Category[]
+  admins      User[]
+
+  @@index([id])
+}
+
+model Category {
+  id        Int      @id @default(autoincrement())
+  tenantId  Int
+  name      String
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  tenant    Tenant   @relation(fields: [tenantId], references: [id])
+  products  Product[]
+
+  @@index([tenantId])
+}
+
+model Product {
+  id          Int      @id @default(autoincrement())
+  tenantId    Int
+  categoryId  Int
+  name        String
+  price       Decimal
+  imageUrl    String
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  tenant      Tenant   @relation(fields: [tenantId], references: [id])
+  category    Category @relation(fields: [categoryId], references: [id])
+
+  @@index([tenantId])
+  @@index([categoryId])
+  @@index([tenantId, categoryId])
+}
+
+model User {
+  id        Int       @id @default(autoincrement())
+  tenantId  Int?
+  nombre    String   
+  email     String
+  role      UserRole
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  tenant    Tenant?  @relation(fields: [tenantId], references: [id])
+
+  @@unique([email, tenantId])
+  @@index([tenantId])
+}
