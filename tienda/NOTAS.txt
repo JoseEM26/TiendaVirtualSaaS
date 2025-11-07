@@ -1,0 +1,16 @@
+# 1. Instalar dependencias
+npm install prisma --save-dev
+npm install @prisma/client
+npm install dotenv  
+
+# 2. Inicializar Prisma
+npx prisma init
+
+# 3. Editar prisma/schema.prisma y .env
+#    (definir tus modelos y DATABASE_URL)
+
+# 4. Crear primera migración y generar Prisma Client
+npx prisma migrate dev --name init
+
+# 5. Opcional: abrir Prisma Studio para ver la DB
+npx prisma studio
