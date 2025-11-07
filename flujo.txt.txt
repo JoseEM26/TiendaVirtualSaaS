@@ -1,0 +1,133 @@
+# 🏪 Proyecto Multitenant SaaS de Ventas Web
+
+## 1️⃣ Resumen del proyecto
+
+Este proyecto es una **plataforma web multitenant tipo SaaS** orientada a la venta de productos. Cada tenant (cliente) tendrá su propio catálogo, categorías, configuraciones, y un administrador.  
+La web es **solo visualización para visitantes** (sin login), mientras que los administradores podrán gestionar productos, categorías y configuración de su tenant desde un dashboard seguro.
+
+### Stack tecnológico:
+- **Frontend**: Next.js 14+ (App Router / Pages Router) + Tailwind CSS.
+- **Backend**: Next.js API Routes + Prisma ORM.
+- **Base de datos**: PostgreSQL (Supabase o Railway recomendado).
+- **Almacenamiento de imágenes**: Cloudinary o Supabase Storage (CDN).
+- **Deployment**: Vercel (gratis hasta cierto límite, con escalabilidad y SSL automático).
+
+---
+
+## 2️⃣ Concepto Multitenant
+
+- Cada **tenant** representa un negocio/cliente.
+- **Roles**:
+  - **Administrador general**: usuario superadmin, puede crear/desactivar tenants.
+  - **Administrador del tenant**: gestiona productos, categorías y configuración de su tenant.
+- Los visitantes pueden acceder **solo para ver productos y categorías**, sin login.
+- Cada tenant tiene:
+  - Configuración propia: logo, colores, descripciones.
+  - Productos: nombre, precio, imagen, categoría.
+  - Categorías: activar/desactivar, organizar productos.
+
+---
+
+## 3️⃣ Estructura de la base de datos (Prisma)
+
+```prisma
+model Tenant {
+  id          Int       @id @default(autoincrement())
+  name        String
+  logoUrl     String?
+  theme       String
+  description String?
+  products    Product[]
+  categories  Category[]
+  admins      User[]    // administradores del tenant
+}
+
+model Category {
+  id        Int      @id @default(autoincrement())
+  tenantId  Int
+  name      String
+  active    Boolean  @default(true)
+  tenant    Tenant   @relation(fields: [tenantId], references: [id])
+  products  Product[]
+}
+
+model Product {
+  id          Int      @id @default(autoincrement())
+  tenantId    Int
+  categoryId  Int
+  name        String
+  price       Float
+  imageUrl    String
+  tenant      Tenant   @relation(fields: [tenantId], references: [id])
+  category    Category @relation(fields: [categoryId], references: [id])
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  tenantId  Int?
+  email     String   @unique
+  role      String   // 'general_admin' o 'tenant_admin'
+  tenant    Tenant?  @relation(fields: [tenantId], references: [id])
+}
+4️⃣ Clases y organización de código en Next.js
+App Routes / API Routes
+
+/api/tenants → CRUD de tenants (solo superadmin).
+
+/api/products → CRUD de productos por tenant.
+
+/api/categories → CRUD de categorías por tenant.
+
+/api/users → CRUD de administradores por tenant.
+
+Frontend / Pages
+
+[tenant]/index.js → Página principal del tenant, muestra catálogo y descripción.
+
+[tenant]/productos.js → Lista de productos filtrados por categoría.
+
+[tenant]/categorias.js → Lista de categorías activas.
+
+[tenant]/about.js → Información sobre la empresa del tenant.
+
+[tenant]/admin → Dashboard para administrador del tenant (seguro).
+
+Componentes
+
+Header → Logo, navegación y tema.
+
+ProductCard → Imagen, nombre, precio.
+
+CategoryFilter → Filtro dinámico de categorías.
+
+ThemeProvider → Aplica colores y estilos según tenant.
+
+AdminPanel → Administración de productos y categorías (solo admin).
+
+Utils
+
+api.js → Funciones de consulta a API Routes.
+
+tenantUtils.js → Carga de configuración y tema por tenant.
+
+auth.js → Control de roles y permisos para admins (solo backend).
+
+5️⃣ Flujo de funcionamiento
+
+El visitante entra a https://tenant1.mi-saas.com.
+
+Next.js carga configuración del tenant: logo, tema, descripción.
+
+Se muestran categorías activas y productos filtrados por tenant y categoría.
+
+Los visitantes solo pueden ver los productos, no hay login.
+
+Los administradores acceden a /[tenant]/admin para:
+
+Crear, editar y eliminar productos.
+
+Activar/desactivar categorías.
+
+Cambiar tema, logo y descripción.
+
+Todas las consultas se filtran por tenantId.
