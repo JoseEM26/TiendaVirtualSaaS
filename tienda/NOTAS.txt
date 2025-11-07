@@ -14,3 +14,20 @@ npx prisma migrate dev --name init
 
 # 5. Opcional: abrir Prisma Studio para ver la DB
 npx prisma studio
+
+
+
+---------------------------------------------------
+#1 dependencia de shadcn
+npx shadcn@latest init
+npx shadcn@latest add button 
+npx shadcn@latest add form
+npx shadcn@latest add checkbox 
+npx shadcn@latest add input 
+npx shadcn@latest add alert-dialog
+npx shadcn@latest add badge
+
+----------------------------------------------------
+npm i @tanstack/react-query
+#Solo si trabajas con eSlingt
+npm i -D @tanstack/eslint-plugin-query
