@@ -38,3 +38,4 @@ npx shadcn@latest add badge
 npm i @tanstack/react-query
 #Solo si trabajas con eSlingt
 npm i -D @tanstack/eslint-plugin-query
+npm install next-themes

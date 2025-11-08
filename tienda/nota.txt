@@ -1,0 +1,205 @@
+================================================================================
+           CONFIGURACIÓN COMPLETA DE PRISMA + NEXT.JS 16 DESDE 0
+                    Tienda SaaS con PostgreSQL + Tailwind + shadcn/ui
+================================================================================
+
+FECHA: 08 de Noviembre de 2025
+PROYECTO: Tienda Virtual SaaS
+TECNOLOGÍAS: Next.js 16 (App Router) | Prisma | PostgreSQL | Tailwind CSS | shadcn/ui
+
+--------------------------------------------------------------------------------
+1. CREAR PROYECTO NEXT.JS
+--------------------------------------------------------------------------------
+npx create-next-app@latest tienda --typescript --tailwind --eslint --app --src-dir
+cd tienda
+
+> Usa: App Router (app/)
+> Incluye: TypeScript, Tailwind, ESLint
+
+--------------------------------------------------------------------------------
+2. INSTALAR DEPENDENCIAS DE PRISMA
+--------------------------------------------------------------------------------
+npm install prisma --save-dev
+npm install @prisma/client
+npm install dotenv
+npm install --save-dev cross-env
+
+> prisma: CLI (solo dev)
+> @prisma/client: Cliente para usar en código
+> dotenv: Cargar .env
+> cross-env: Variables en Windows
+
+
+--------------------------------------------------------------------------------
+3. INICIALIZAR PRISMA
+--------------------------------------------------------------------------------
+npx prisma init
+
+> Crea:
+>   prisma/schema.prisma
+>   prisma.config.ts  ← ELIMINAR
+>   .env (ejemplo)
+
+ELIMINAR prisma.config.ts (OBLIGATORIO)
+Remove-Item prisma.config.ts
+
+> Evita errores con --url y .env
+
+--------------------------------------------------------------------------------
+4. CONFIGURAR .env (BASE DE DATOS)
+--------------------------------------------------------------------------------
+# .env
+DATABASE_URL="postgresql://postgres:postgres@localhost:5432/tienda_db?schema=public"
+
+> Asegúrate:
+> - PostgreSQL corriendo (net start postgresql-x64-15)
+> - Base de datos tienda_db existe
+> - Usuario: postgres | Contraseña: postgres
+
+--------------------------------------------------------------------------------
+5. SINCRONIZAR CON BD EXISTENTE (db pull)
+--------------------------------------------------------------------------------
+npx prisma db pull --url="postgresql://postgres:postgres@localhost:5432/tienda_db?schema=public"
+
+> Genera schema.prisma con tus tablas reales
+
+--------------------------------------------------------------------------------
+6. GENERAR CLIENTE PRISMA
+--------------------------------------------------------------------------------
+npx prisma generate
+
+> Crea tipos y funciones en @prisma/client
+
+--------------------------------------------------------------------------------
+7. CREAR CLIENTE GLOBAL (lib/prisma.ts)
+--------------------------------------------------------------------------------
+// lib/prisma.ts
+import { PrismaClient } from '@prisma/client'
+
+const globalForPrisma = global as unknown as { prisma: PrismaClient }
+
+export const prisma =
+  globalForPrisma.prisma ||
+  new PrismaClient({
+    log: ['query', 'info', 'warn', 'error'],
+  })
+
+if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma
+
+export default prisma
+
+--------------------------------------------------------------------------------
+8. PRUEBA RÁPIDA: API Route
+--------------------------------------------------------------------------------
+// app/api/test/route.ts
+import { prisma } from '@/lib/prisma'
+import { NextResponse } from 'next/server'
+
+export async function GET() {
+  try {
+    const count = await prisma.product.count()
+    return NextResponse.json({ success: true, count })
+  } catch (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 })
+  }
+}
+
+> Abre: http://localhost:3000/api/test
+
+--------------------------------------------------------------------------------
+9. COMANDOS ÚTILES DE PRISMA
+--------------------------------------------------------------------------------
+npx prisma generate        # Regenera cliente
+npx prisma studio          # GUI → http://localhost:5555
+npx prisma db pull         # Actualiza schema desde BD
+npx prisma migrate dev --name nombre   # Crea migración
+npx prisma migrate reset   # Borra todo y reinicia
+
+--------------------------------------------------------------------------------
+10. SHADCN/UI (COMPONENTES BONITOS)
+--------------------------------------------------------------------------------
+npx shadcn@latest init
+
+> Crea: components.json, lib/utils.ts
+
+npx shadcn@latest add button form input checkbox badge alert-dialog
+
+> Componentes listos para usar
+
+--------------------------------------------------------------------------------
+11. REACT QUERY (GESTIÓN DE DATOS)
+--------------------------------------------------------------------------------
+npm i @tanstack/react-query
+npm i -D @tanstack/eslint-plugin-query
+
+> Para fetch, caché, mutaciones
+
+--------------------------------------------------------------------------------
+12. TEMAS (DARK MODE)
+--------------------------------------------------------------------------------
+npm install next-themes
+
+> Usa ThemeProvider en layout.tsx
+
+--------------------------------------------------------------------------------
+13. EJECUTAR PROYECTO
+--------------------------------------------------------------------------------
+npm run dev
+
+> Abre: http://localhost:3000
+
+--------------------------------------------------------------------------------
+RESUMEN DE COMANDOS (COPIA Y PEGA)
+--------------------------------------------------------------------------------
+npm install prisma --save-dev
+npm install @prisma/client
+npm install dotenv
+npm install --save-dev cross-env
+
+npx prisma init
+Remove-Item prisma.config.ts
+
+npx prisma db pull --url="postgresql://postgres:postgres@localhost:5432/tienda_db?schema=public"
+npx prisma generate
+
+npx shadcn@latest init
+npx shadcn@latest add button form input
+
+npm i @tanstack/react-query
+npm install next-themes
+
+npm run dev
+
+--------------------------------------------------------------------------------
+ESTRUCTURA FINAL DEL PROYECTO
+--------------------------------------------------------------------------------
+tienda/
+├── app/
+│   ├── layout.tsx
+│   ├── page.tsx
+│   └── api/test/route.ts
+├── lib/
+│   └── prisma.ts
+├── components/          ← shadcn
+├── prisma/
+│   └── schema.prisma
+├── .env
+├── components.json
+├── tailwind.config.js
+└── package.json
+
+================================================================================
+PRÓXIMOS PASOS PARA TU TIENDA SaaS
+================================================================================
+1. Página de productos con React Query
+2. Carrito de compras con Zustand
+3. Login con NextAuth.js + Google
+4. Dashboard admin con shadcn/ui
+5. Subir imágenes con Cloudinary
+6. Deploy en Vercel
+
+================================================================================
+¡LISTO PARA DESARROLLAR TU TIENDA SaaS PROFESIONAL!
+================================================================================
+npm install @radix-ui/react-slot class-variance-authority clsx tailwind-merge
+npm install lucide-react
