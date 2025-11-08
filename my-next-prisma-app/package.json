@@ -1,0 +1,37 @@
+{
+  "name": "my-next-prisma-app",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint",
+    "prisma:dev": "cross-env NODE_ENV=development prisma",
+    "prisma:studio": "cross-env NODE_ENV=development prisma studio",
+    "prisma:generate": "cross-env NODE_ENV=development prisma generate",
+    "prisma:pull": "cross-env NODE_ENV=development prisma db pull",
+    "prisma:push": "cross-env NODE_ENV=development prisma db push",
+    "prisma:migrate": "cross-env NODE_ENV=development prisma migrate dev"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.19.0",
+    "dotenv": "^17.2.3",
+    "next": "16.0.1",
+    "react": "19.2.0",
+    "react-dom": "19.2.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "babel-plugin-react-compiler": "1.0.0",
+    "cross-env": "^10.1.0",
+    "eslint": "^9",
+    "eslint-config-next": "16.0.1",
+    "prisma": "^6.19.0",
+    "tailwindcss": "^4",
+    "typescript": "^5"
+  }
+}

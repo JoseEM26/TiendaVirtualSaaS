@@ -1,0 +1,72 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String   @unique
+  password  String
+  role      String   @default("USER")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  tiendas   Tienda[]
+
+  @@map("User")
+}
+
+model Tienda {
+  id            Int      @id @default(autoincrement())
+  nombre        String
+  descripcion   String?
+  logoUrl       String?  @map("logo_url")
+  ubicacion     String?
+  whatsapp      String?
+  emailContacto String?  @map("email_contacto")
+  estado        Boolean  @default(true)
+  createdAt     DateTime @default(now()) @map("created_at")
+  ownerId       Int      @map("owner_id")
+
+  owner         User     @relation(fields: [ownerId], references: [id])
+  categorias    Categoria[]
+  productos     Producto[]
+
+  @@map("Tienda")
+}
+
+model Categoria {
+  id        Int      @id @default(autoincrement())
+  nombre    String
+  activa    Boolean  @default(true)
+  tiendaId  Int      @map("tienda_id")
+
+  tienda    Tienda   @relation(fields: [tiendaId], references: [id])
+  productos Producto[]
+
+  @@map("Categoria")
+}
+
+model Producto {
+  id            Int      @id @default(autoincrement())
+  nombre        String
+  descripcion   String?
+  imagenBase64  String?  @map("imagen_base64")
+  precio        Decimal  @db.Decimal(10, 2)
+  talla         String?
+  tipoGenero    String?  @map("tipo_genero")
+  stock         Int      @default(0)
+  activo        Boolean  @default(true)
+  createdAt     DateTime @default(now()) @map("created_at")
+  categoriaId   Int      @map("categoria_id")
+  tiendaId      Int      @map("tienda_id")
+
+  categoria     Categoria @relation(fields: [categoriaId], references: [id])
+  tienda        Tienda    @relation(fields: [tiendaId], references: [id])
+
+  @@map("Producto")
+}

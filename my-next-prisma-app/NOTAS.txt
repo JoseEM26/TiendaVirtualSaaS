@@ -1,0 +1,40 @@
+# 1. Instalar dependencias (TODO ESTO PARA POSTGRED)
+npm install prisma --save-dev
+npm install @prisma/client
+npm install dotenv  
+npx prisma init
+npm install --save-dev cross-env
+
+#2.1 Si hay problema con .env usar esto
+npx cross-env DATABASE_URL="postgresql://postgres:postgres@localhost:5432/tienda_db?schema=public" prisma db pull   
+npx prisma generate
+
+# 5. Opcional: abrir Prisma Studio para ver la DB
+npx prisma studio
+
+------------------------------------------------
+npx prisma generate          # siempre funciona
+npx prisma studio            # abre tus datos
+npx prisma db pull           # actualiza el schema
+npm run dev                  # levanta Next.js
+-------------------------------------------------
+# 1.si quieres volver a generar la bd 
+npx prisma generate
+npx prisma migrate reset
+npx prisma migrate dev --name init
+
+
+---------------------------------------------------
+#1 dependencia de shadcn
+npx shadcn@latest init
+npx shadcn@latest add button 
+npx shadcn@latest add form
+npx shadcn@latest add checkbox 
+npx shadcn@latest add input 
+npx shadcn@latest add alert-dialog
+npx shadcn@latest add badge
+
+----------------------------------------------------
+npm i @tanstack/react-query
+#Solo si trabajas con eSlingt
+npm i -D @tanstack/eslint-plugin-query
