@@ -2,10 +2,16 @@
 import { prisma } from '@/lib/prisma';
 import { notFound } from 'next/navigation';
 import ProductosList from '@/components/ProductosList';
-import { slugify } from '@/lib/slugify';
 
-export default async function ProductosPage({ params }: { params: { tiendaSlug: string } }) {
-  const { tiendaSlug } = params;
+interface Props {
+  params: Promise<{ tiendaSlug: string }>;
+}
+
+export default async function ProductosPage({ params }: Props) {
+  const { tiendaSlug } = await params;
+
+  // VALIDACIÓN SEGURA
+  if (!tiendaSlug) notFound();
 
   const tienda = await prisma.tienda.findFirst({
     where: {
@@ -26,15 +32,13 @@ export default async function ProductosPage({ params }: { params: { tiendaSlug: 
 
   if (!tienda) notFound();
 
-  const tiendaSlugUrl = tienda.slug || slugify(tienda.nombre);
-
   return (
-    <div className="min-h-screen bg-gray-50 py-12">
+    <div className="min-h-screen bg-background py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-8">
+        <h1 className="text-3xl font-bold text-foreground mb-8">
           Todos los productos de {tienda.nombre}
         </h1>
-        <ProductosList productos={tienda.Producto} tiendaSlug={tiendaSlugUrl} />
+        <ProductosList productos={tienda.Producto} tiendaSlug={tienda.slug!} />
       </div>
     </div>
   );

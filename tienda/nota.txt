@@ -175,19 +175,40 @@ ESTRUCTURA FINAL DEL PROYECTO
 --------------------------------------------------------------------------------
 tienda/
 ├── app/
-│   ├── layout.tsx
-│   ├── page.tsx
-│   └── api/test/route.ts
+│   ├── layout.tsx                 ← Root layout con <html><body>
+│   ├── page.tsx                   ← Landing (lista de tiendas)
+│   ├── tiendas/
+│   │   └── [tiendaSlug]/
+│   │       ├── page.tsx           ← Dashboard
+│   │       ├── productos/
+│   │       │   └── page.tsx       ← Lista
+│   │       │   └── [productoSlug]/
+│   │       │       └── page.tsx   ← Detalle
+│   │       └── categorias/
+│   │           └── [categoriaSlug]/
+│   │               └── page.tsx   ← Productos por categoría
+│   └── api/
+│       ├── test/route.ts
+│       ├── tiendas/
+│       │   ├── route.ts
+│       │   └── [id]/route.ts
+│       ├── categorias/route.ts
+│       └── productos/route.ts
+├── components/
+│   ├── ui/                        ← shadcn/ui components
+│   ├── ProductosList.tsx
+│   ├── CategoriasList.tsx
+│   └── Layout.tsx                 ← Opcional
 ├── lib/
-│   └── prisma.ts
-├── components/          ← shadcn
+│   ├── prisma.ts
+│   ├── slugify.ts
+│   └── format.ts
 ├── prisma/
 │   └── schema.prisma
 ├── .env
 ├── components.json
 ├── tailwind.config.js
 └── package.json
-
 ================================================================================
 PRÓXIMOS PASOS PARA TU TIENDA SaaS
 ================================================================================
