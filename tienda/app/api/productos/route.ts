@@ -19,10 +19,7 @@ export async function GET(request: Request) {
   try {
     const productos = await prisma.producto.findMany({
       where: buildWhere(tiendaId, categoriaId),
-      include: {
-        Categoria: true,
-        Tienda: { include: { User: true } },
-      },
+      include: { Categoria: true, Tienda: true },
       orderBy: { created_at: 'desc' },
     });
     return NextResponse.json(productos);
@@ -42,38 +39,6 @@ export async function POST(request: Request) {
     });
 
     return NextResponse.json(producto, { status: 201 });
-  } catch (error) {
-    return handleError(error);
-  }
-}
-
-export async function PUT(request: Request) {
-  try {
-    const { id, ...rest } = await request.json();
-    if (!id) throw new Error('ID requerido');
-
-    const data = productoSchema.parse(rest);
-
-    const producto = await prisma.producto.update({
-      where: { id: Number(id) },
-      data,
-      include: { Categoria: true, Tienda: true },
-    });
-
-    return NextResponse.json(producto);
-  } catch (error) {
-    return handleError(error);
-  }
-}
-
-export async function DELETE(request: Request) {
-  try {
-    const { searchParams } = new URL(request.url);
-    const id = searchParams.get('id');
-    if (!id || isNaN(Number(id))) throw new Error('ID inválido');
-
-    await prisma.producto.delete({ where: { id: Number(id) } });
-    return NextResponse.json({ message: 'Producto eliminado' });
   } catch (error) {
     return handleError(error);
   }

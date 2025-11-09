@@ -1,8 +1,5 @@
-// prisma/schema.prisma
-
 generator client {
   provider = "prisma-client-js"
-  // ← QUITA EL OUTPUT (usa el predeterminado)
 }
 
 datasource db {
@@ -13,51 +10,63 @@ datasource db {
 model Categoria {
   id        Int        @id @default(autoincrement())
   nombre    String     @db.VarChar(100)
-  activa    Boolean    @default(true)
+  slug      String     @unique @db.VarChar(120)
+  activa    Boolean?   @default(true)
   tienda_id Int
-  Tienda    Tienda     @relation(fields: [tienda_id], references: [id], onUpdate: NoAction)
+  Tienda    Tienda     @relation(fields: [tienda_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_categoria_tienda")
   Producto  Producto[]
+
+  @@index([slug], map: "idx_categoria_slug")
+  @@index([tienda_id], map: "idx_categoria_tienda")
 }
 
 model Producto {
   id            Int       @id @default(autoincrement())
   nombre        String    @db.VarChar(100)
+  slug          String    @unique @db.VarChar(120)
   descripcion   String?
   imagen_base64 String?
   precio        Decimal   @db.Decimal(10, 2)
   talla         String?   @db.VarChar(20)
   tipo_genero   String?   @db.VarChar(20)
-  stock         Int       @default(0)
-  activo        Boolean   @default(true)
+  stock         Int?      @default(0)
+  activo        Boolean?  @default(true)
   categoria_id  Int
   tienda_id     Int
-  created_at    DateTime  @default(now()) @db.Timestamp(6)
-  Categoria     Categoria @relation(fields: [categoria_id], references: [id], onUpdate: NoAction)
-  Tienda        Tienda    @relation(fields: [tienda_id], references: [id], onUpdate: NoAction)
+  created_at    DateTime? @default(now()) @db.Timestamp(6)
+  Categoria     Categoria @relation(fields: [categoria_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_producto_categoria")
+  Tienda        Tienda    @relation(fields: [tienda_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_producto_tienda")
+
+  @@index([categoria_id], map: "idx_producto_categoria")
+  @@index([slug], map: "idx_producto_slug")
+  @@index([tienda_id], map: "idx_producto_tienda")
 }
 
 model Tienda {
   id             Int         @id @default(autoincrement())
   nombre         String      @db.VarChar(100)
+  slug           String      @unique @db.VarChar(120)
   descripcion    String?
   logo_url       String?
   ubicacion      String?
   whatsapp       String?     @db.VarChar(20)
   email_contacto String?     @db.VarChar(100)
-  estado         Boolean     @default(true)
-  created_at     DateTime    @default(now()) @db.Timestamp(6)
+  estado         Boolean?    @default(true)
+  created_at     DateTime?   @default(now()) @db.Timestamp(6)
   owner_id       Int
   Categoria      Categoria[]
   Producto       Producto[]
-  User           User        @relation(fields: [owner_id], references: [id], onUpdate: NoAction)
+  User           User        @relation(fields: [owner_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_tienda_owner")
+
+  @@index([slug], map: "idx_tienda_slug")
 }
 
 model User {
-  id         Int      @id @default(autoincrement())
-  name       String   @db.VarChar(100)
-  email      String   @unique @db.VarChar(100)
-  password   String   @db.VarChar(100)
-  role       String   @default("USER") @db.VarChar(20)
-  created_at DateTime @default(now()) @db.Timestamp(6)
+  id         Int       @id @default(autoincrement())
+  name       String    @db.VarChar(100)
+  email      String    @unique @db.VarChar(100)
+  password   String    @db.VarChar(100)
+  role       String?   @default("USER") @db.VarChar(20)
+  created_at DateTime? @default(now()) @db.Timestamp(6)
   Tienda     Tienda[]
 }

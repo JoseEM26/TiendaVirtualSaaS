@@ -203,3 +203,44 @@ PRÓXIMOS PASOS PARA TU TIENDA SaaS
 ================================================================================
 npm install @radix-ui/react-slot class-variance-authority clsx tailwind-merge
 npm install lucide-react
+npx prisma studio
+
+
+app/
+│
+├── (public)/
+│   └── page.tsx                     → Landing general (lista de tiendas)
+│
+├── tiendas/
+│   └── [tiendaSlug]/
+│       ├── page.tsx                 → Dashboard de la tienda
+│       ├── productos/
+│       │   └── page.tsx             → Lista de productos
+│       │   └── [productoSlug]/
+│       │       └── page.tsx         → Detalle de producto
+│       └── categorias/
+│           └── [categoriaSlug]/
+│               └── page.tsx         → Productos por categoría
+│
+├── api/
+│   ├── tiendas/
+│   │   ├── route.ts             → GET/POST todas
+│   │   └── [id]/
+│   │       └── route.ts         → GET/PUT/DELETE por ID
+│   ├── productos/
+│   │   └── route.ts
+│   └── categorias/
+│       └── route.ts
+│
+├── components/
+│   ├── ProductosList.tsx
+│   ├── CategoriasList.tsx
+│   └── ProductoCard.tsx
+│
+├── lib/
+│   ├── prisma.ts
+│   ├── validation.ts
+│   ├── errorHandler.ts
+│   └── slugify.ts
+│
+└── layout.tsx                       → Layout global

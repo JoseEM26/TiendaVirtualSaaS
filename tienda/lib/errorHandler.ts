@@ -11,22 +11,21 @@ export function handleError(error: unknown) {
   }
 
   if (error instanceof Error) {
+    console.error('[API ERROR]', error.message);
     if (error.message.includes('Unique constraint')) {
       return NextResponse.json(
         { error: 'Ya existe un registro con ese valor' },
         { status: 409 }
       );
     }
-
-    console.error('[API ERROR]', error);
     return NextResponse.json(
-      { error: error.message || 'Error interno' },
+      { error: error.message },
       { status: 500 }
     );
   }
 
   return NextResponse.json(
-    { error: 'Error desconocido' },
+    { error: 'Error interno del servidor' },
     { status: 500 }
   );
 }
