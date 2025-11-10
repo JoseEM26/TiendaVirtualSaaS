@@ -5,6 +5,7 @@ import { tiendaSchema } from '@/lib/validation';
 import { handleError } from '@/lib/errorHandler';
 import { slugify } from '@/lib/slugify';
 
+
 export async function GET(
   request: Request,
   { params }: { params: { id: string } }
@@ -29,27 +30,33 @@ export async function GET(
   }
 }
 
+
+
 export async function PUT(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> } // Type params as a Promise
 ) {
-  const id = Number(params.id);
-  if (isNaN(id)) return NextResponse.json({ error: 'ID inválido' }, { status: 400 });
+  const { id } = await params; // Unwrap the Promise
+  const tiendaId = Number(id); // Convert string ID to number
+
+  if (isNaN(tiendaId)) {
+    return NextResponse.json({ error: 'ID inválido' }, { status: 400 });
+  }
 
   try {
     const body = await request.json();
-    const data = tiendaSchema.partial().parse(body);
+    const data = tiendaSchema.partial().parse(body); // Validate with Zod schema
     const slug = data.nombre ? slugify(data.nombre) : undefined;
 
     const tienda = await prisma.tienda.update({
-      where: { id },
+      where: { id: tiendaId }, // Use numeric ID
       data: { ...data, slug },
-      include: { User: true },
+      include: { User: { select: { id: true, name: true, email: true } } }, // Be explicit about included fields
     });
 
     return NextResponse.json(tienda);
   } catch (error) {
-    return handleError(error);
+    return handleError(error); // Use custom error handler
   }
 }
 

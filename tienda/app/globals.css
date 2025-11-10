@@ -120,3 +120,7 @@
     @apply bg-background text-foreground;
   }
 }
+.text-destructive {
+  color: red;
+  font-size: 0.875rem;
+}

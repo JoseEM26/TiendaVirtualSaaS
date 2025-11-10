@@ -1,0 +1,71 @@
+tienda/
+├── src/ # Directorio fuente
+│   ├── app/ # Next.js App Router
+│   │   ├── (public)/ # Rutas públicas
+│   │   │   └── page.tsx # Landing page (lista de tiendas)
+│   │   ├── admin/ # Rutas administrativas
+│   │   │   ├── layout.tsx # Layout para rutas admin (con QueryClientProvider)
+│   │   │   ├── users/ # Gestión de usuarios
+│   │   │   │   ├── page.tsx # Lista de usuarios con formulario (modal o inline)
+│   │   │   ├── tiendas/ # Gestión de tiendas
+│   │   │   │   ├── nueva/ # Crear nueva tienda
+│   │   │   │   │   └── page.tsx # Formulario para crear tienda
+│   │   │   │   ├── [id]/ # Editar tienda específica
+│   │   │   │   │   └── page.tsx # Formulario para editar tienda
+│   │   ├── tiendas/ # Rutas de tiendas públicas
+│   │   │   ├── [tiendaSlug]/ # Dashboard de una tienda
+│   │   │   │   ├── page.tsx # Vista principal (dashboard)
+│   │   │   │   ├── productos/ # Gestión de productos
+│   │   │   │   │   ├── page.tsx # Lista de productos
+│   │   │   │   │   └── [productoSlug]/ # Detalle de producto
+│   │   │   │   │       └── page.tsx # Vista de producto individual
+│   │   │   │   ├── categorias/ # Gestión de categorías
+│   │   │   │   │   └── [categoriaSlug]/ # Productos por categoría
+│   │   │   │   │       └── page.tsx # Lista de productos por categoría
+│   │   ├── api/ # Rutas API
+│   │   │   ├── test/ # Ruta de prueba
+│   │   │   │   └── route.ts # Endpoint para probar conexión BD
+│   │   │   ├── users/ # API para usuarios
+│   │   │   │   ├── route.ts # GET/POST para lista de usuarios
+│   │   │   │   └── [id]/ # Operaciones por ID de usuario
+│   │   │   │       └── route.ts # GET/PUT/DELETE para usuario específico
+│   │   │   ├── tiendas/ # API para tiendas
+│   │   │   │   ├── route.ts # GET/POST para lista de tiendas
+│   │   │   │   └── [id]/ # Operaciones por ID de tienda
+│   │   │   │       └── route.ts # GET/PUT/DELETE para tienda específica
+│   │   │   ├── productos/ # API para productos
+│   │   │   │   └── route.ts # CRUD de productos
+│   │   │   ├── categorias/ # API para categorías
+│   │   │   │   └── route.ts # CRUD de categorías
+│   │   ├── layout.tsx # Layout global (<html>, <body>)
+│   │   ├── page.tsx # Página raíz (landing general)
+│   ├── components/ # Componentes reutilizables
+│   │   ├── CategoriasList.tsx # Lista de categorías (server/client)
+│   │   ├── DeleteButton.tsx # Botón de eliminación (client, con confirmación)
+│   │   ├── ProductoCard.tsx # Tarjeta de producto (server/client)
+│   │   ├── ProductosList.tsx # Lista de productos (server/client)
+│   │   ├── ReloadButton.tsx # Botón de recarga (client)
+│   │   ├── TiendaForm.tsx # Formulario de tienda (client, 'use client')
+│   │   ├── UserForm.tsx # Formulario de usuario (client, 'use client')
+│   │   ├── UsersTable.tsx # Tabla de usuarios (client, 'use client')
+│   ├── lib/ # Utilidades y configuraciones
+│   │   ├── prisma.ts # Cliente global de Prisma
+│   │   ├── slugify.ts # Utilidad para generar slugs
+│   │   ├── format.ts # Funciones de formato (ej. fechas, precios)
+│   │   ├── validation.ts # Esquemas de validación (Zod, incluye userSchema)
+│   │   ├── errorHandler.ts # Manejo centralizado de errores
+│   │   ├── api/ # Funciones de API client-side
+│   │   │   ├── users.ts # Funciones para interactuar con API de usuarios
+│   │   │   ├── tiendas.ts # Funciones para interactuar con API de tiendas
+│   │   │   ├── productos.ts # Funciones para interactuar con API de productos
+│   │   │   ├── categorias.ts # Funciones para interactuar con API de categorías
+│   ├── prisma/ # Configuración de Prisma
+│   │   └── schema.prisma # Esquema de la base de datos (incluye modelo User)
+│   ├── styles/ # Estilos globales
+│   │   └── globals.css # Estilos Tailwind y shadcn/ui
+├── .env # Variables de entorno (DATABASE_URL)
+├── components.json # Configuración de shadcn/ui
+├── tailwind.config.js # Configuración de Tailwind CSS
+├── package.json # Dependencias y scripts
+├── tsconfig.json # Configuración de TypeScript
+├── next.config.mjs # Configuración de Next.js

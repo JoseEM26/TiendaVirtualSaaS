@@ -30,3 +30,10 @@ export const productoSchema = z.object({
   categoria_id: z.number().int().positive(),
   tienda_id: z.number().int().positive(),
 });
+
+export const userSchema = z.object({
+  name: z.string().min(2, 'El nombre debe tener al menos 2 caracteres'),
+  email: z.string().email('Correo electrónico inválido'),
+  password: z.string().min(8, 'La contraseña debe tener al menos 8 caracteres'),
+  role: z.enum(['USER', 'ADMIN', 'OWNER']).optional().default('USER'),
+});
