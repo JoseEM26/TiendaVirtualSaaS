@@ -21,21 +21,22 @@ model Categoria {
 }
 
 model Producto {
-  id            Int       @id @default(autoincrement())
-  nombre        String    @db.VarChar(100)
-  slug          String    @unique @db.VarChar(120)
-  descripcion   String?
-  imagen_base64 String?
-  precio        Decimal   @db.Decimal(10, 2)
-  talla         String?   @db.VarChar(20)
-  tipo_genero   String?   @db.VarChar(20)
-  stock         Int?      @default(0)
-  activo        Boolean?  @default(true)
-  categoria_id  Int
-  tienda_id     Int
-  created_at    DateTime? @default(now()) @db.Timestamp(6)
-  Categoria     Categoria @relation(fields: [categoria_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_producto_categoria")
-  Tienda        Tienda    @relation(fields: [tienda_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_producto_tienda")
+  id           Int       @id @default(autoincrement())
+  nombre       String    @db.VarChar(100)
+  slug         String    @unique @db.VarChar(120)
+  descripcion  String?
+  imagen_url   String?
+  precio       Decimal   @db.Decimal(10, 2)
+  talla        String?   @db.VarChar(20)
+  tipo_genero  String?   @db.VarChar(20)
+  stock        Int?      @default(0)
+  activo       Boolean?  @default(true)
+  destacado   Boolean  @default(false)  // ← AÑADIR ESTO
+  categoria_id Int
+  tienda_id    Int
+  created_at   DateTime? @default(now()) @db.Timestamp(6)
+  Categoria    Categoria @relation(fields: [categoria_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_producto_categoria")
+  Tienda       Tienda    @relation(fields: [tienda_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_producto_tienda")
 
   @@index([categoria_id], map: "idx_producto_categoria")
   @@index([slug], map: "idx_producto_slug")

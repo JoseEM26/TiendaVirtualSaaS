@@ -3,14 +3,17 @@ import { prisma } from '@/lib/prisma';
 import { notFound } from 'next/navigation';
 import ProductosList from '@/components/ProductosList';
 import { slugify } from '@/lib/slugify';
+import Image from 'next/image';
+import Link from 'next/link';
+import { Package, ChevronLeft, Filter, ArrowUpDown, AlertCircle } from 'lucide-react';
 
 interface Props {
   params: Promise<{ tiendaSlug: string; categoriaSlug: string }>;
 }
 
-// SEO dinámico
+// SEO
 export async function generateMetadata({ params }: Props) {
-  const { categoriaSlug } = await params;
+  const { tiendaSlug, categoriaSlug } = await params;
 
   const categoria = await prisma.categoria.findFirst({
     where: {
@@ -19,17 +22,35 @@ export async function generateMetadata({ params }: Props) {
         { slug: categoriaSlug },
         { nombre: { equals: categoriaSlug.replace(/-/g, ' '), mode: 'insensitive' } },
       ],
+      Tienda: {
+        OR: [
+          { slug: tiendaSlug },
+          { nombre: { equals: tiendaSlug.replace(/-/g, ' '), mode: 'insensitive' } },
+        ],
+      },
     },
-    select: { nombre: true },
+    select: {
+      nombre: true,
+      Tienda: { select: { nombre: true, logo_url: true } },
+    },
   });
 
+  if (!categoria) return { title: 'Categoría no encontrada' };
+
   return {
-    title: categoria ? `${categoria.nombre} | TuTienda` : 'Categoría no encontrada',
+    title: `${categoria.nombre} | ${categoria.Tienda.nombre} - TuTienda.pe`,
+    description: `Explora todos los productos en ${categoria.nombre} de ${categoria.Tienda.nombre}. Envíos a todo Perú.`,
+    openGraph: {
+      title: `${categoria.nombre} | ${categoria.Tienda.nombre}`,
+      description: `Envíos a Lima, Arequipa, Trujillo y todo Perú. Calidad garantizada.`,
+      images: categoria.Tienda.logo_url ? [{ url: categoria.Tienda.logo_url }] : [],
+      locale: 'es_PE',
+    },
   };
 }
 
 export default async function CategoriaPage({ params }: Props) {
-  const { tiendaSlug, categoriaSlug } = await params; // AWAIT AQUÍ
+  const { tiendaSlug, categoriaSlug } = await params;
 
   const categoria = await prisma.categoria.findFirst({
     where: {
@@ -49,25 +70,170 @@ export default async function CategoriaPage({ params }: Props) {
       Producto: {
         where: { activo: true },
         orderBy: { created_at: 'desc' },
+        select: {
+          id: true,
+          nombre: true,
+          slug: true,
+          precio: true,
+          imagen_url: true,
+          stock: true,
+          talla: true,
+          tipo_genero: true,
+        },
       },
-      Tienda: { select: { slug: true, nombre: true } },
+      Tienda: {
+        select: { nombre: true, slug: true, logo_url: true, whatsapp: true },
+      },
+      _count: {
+        select: {
+          Producto: {
+            where: { activo: true },
+          },
+        },
+      },
     },
   });
 
   if (!categoria) notFound();
 
   const tiendaSlugUrl = categoria.Tienda.slug || slugify(categoria.Tienda.nombre);
+  const totalProductos = categoria._count?.Producto || 0;
+  const stockTotal = categoria.Producto.reduce((sum, p) => sum + (p.stock || 0), 0);
+  const isLowStock = totalProductos > 0 && stockTotal <= 5;
+
+  // Filtros únicos
+  const tallas = [...new Set(categoria.Producto.map(p => p.talla).filter(Boolean))].sort();
+  const generos = [...new Set(categoria.Producto.map(p => p.tipo_genero).filter(Boolean))].sort();
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50 py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">
-          {categoria.nombre}
-        </h1>
-        <p className="text-gray-600 mb-8">
-          {categoria.Producto.length} productos en esta categoría
-        </p>
-        <ProductosList productos={categoria.Producto} tiendaSlug={tiendaSlugUrl} />
+
+        {/* Breadcrumb */}
+        <nav className="flex items-center gap-2 text-sm text-gray-600 mb-6" aria-label="Breadcrumb">
+          <Link href="/" className="hover:text-indigo-600">Inicio</Link>
+          <ChevronLeft className="w-4 h-4" />
+          <Link href={`/tiendas/${tiendaSlugUrl}`} className="hover:text-indigo-600">
+            {categoria.Tienda.nombre}
+          </Link>
+          <ChevronLeft className="w-4 h-4" />
+          <span className="text-gray-900 font-medium">{categoria.nombre}</span>
+        </nav>
+
+        {/* Header Categoría */}
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 mb-8">
+          <div className="flex items-center gap-4">
+            {categoria.Tienda.logo_url && (
+              <div className="w-16 h-16 rounded-full overflow-hidden ring-4 ring-white shadow-lg">
+                <Image
+                  src={categoria.Tienda.logo_url}
+                  alt={categoria.Tienda.nombre}
+                  width={64}
+                  height={64}
+                  className="object-cover"
+                />
+              </div>
+            )}
+            <div>
+              <h1 className="text-3xl lg:text-4xl font-bold text-gray-900 flex items-center gap-2">
+                {categoria.nombre}
+                {isLowStock && (
+                  <span className="inline-flex items-center gap-1 text-xs bg-orange-100 text-orange-700 px-2 py-1 rounded-full font-bold">
+                    <AlertCircle className="w-3 h-3" />
+                    ¡Pocos disponibles!
+                  </span>
+                )}
+              </h1>
+              <p className="text-gray-600 flex items-center gap-1 mt-1">
+                <Package className="w-4 h-4" />
+                {totalProductos} {totalProductos === 1 ? 'producto' : 'productos'} • {stockTotal} en stock
+              </p>
+            </div>
+          </div>
+
+          {/* Filtros y Ordenar */}
+          <div className="flex flex-wrap gap-3">
+            {/* Filtros */}
+            {(tallas.length > 0 || generos.length > 0) && (
+              <details className="dropdown">
+                <summary className="btn btn-outline btn-sm flex items-center gap-1">
+                  <Filter className="w-4 h-4" />
+                  Filtros
+                </summary>
+                <div className="dropdown-content bg-white p-4 rounded-xl shadow-lg z-10 w-64 space-y-3">
+                  {tallas.length > 0 && (
+                    <div>
+                      <p className="font-medium text-sm mb-2">Talla</p>
+                      <div className="space-y-1">
+                        {tallas.map(t => (
+                          <label key={t} className="flex items-center gap-2 cursor-pointer">
+                            <input type="checkbox" className="checkbox checkbox-xs checkbox-primary" />
+                            <span className="text-sm">{t}</span>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  {generos.length > 0 && (
+                    <div>
+                      <p className="font-medium text-sm mb-2">Género</p>
+                      <div className="space-y-1">
+                        {generos.map(g => (
+                          <label key={g} className="flex items-center gap-2 cursor-pointer">
+                            <input type="checkbox" className="checkbox checkbox-xs checkbox-primary" />
+                            <span className="text-sm">{g}</span>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </details>
+            )}
+
+            {/* Ordenar */}
+            <select className="select select-bordered select-sm w-full max-w-xs">
+              <option value="nuevo">Más nuevos</option>
+              <option value="precio-asc">Precio: bajo a alto</option>
+              <option value="precio-desc">Precio: alto a bajo</option>
+              <option value="stock">Más stock</option>
+            </select>
+          </div>
+        </div>
+
+        {/* Productos */}
+        {totalProductos > 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <ProductosList productos={categoria.Producto} tiendaSlug={tiendaSlugUrl} />
+          </div>
+        ) : (
+          <div className="text-center py-16 bg-white rounded-2xl shadow-sm">
+            <Package className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+            <p className="text-gray-600 text-lg">No hay productos en esta categoría aún.</p>
+            <Link
+              href={`/tiendas/${tiendaSlugUrl}`}
+              className="mt-4 inline-flex items-center gap-1 text-indigo-600 hover:underline font-medium"
+            >
+              <ChevronLeft className="w-4 h-4" />
+              Volver a la tienda
+            </Link>
+          </div>
+        )}
+
+        {/* WhatsApp Flotante */}
+        {categoria.Tienda.whatsapp && (
+          <a
+            href={`https://wa.me/${categoria.Tienda.whatsapp.replace(/\D/g, '')}?text=¡Hola!%20Quiero%20ver%20más%20de%20la%20categoría%20*${encodeURIComponent(categoria.nombre)}*%20(${totalProductos}%20productos)`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="fixed bottom-6 right-6 z-50 w-14 h-14 bg-green-600 hover:bg-green-700 text-white rounded-full flex items-center justify-center shadow-xl transition-all hover:scale-110"
+            aria-label="Contactar por WhatsApp"
+          >
+            <svg className="w-7 h-7" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.297-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.626.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.261c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893A11.821 11.821 0 0020.885 3.488"/>
+            </svg>
+          </a>
+        )}
       </div>
     </div>
   );
