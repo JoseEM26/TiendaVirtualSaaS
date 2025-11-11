@@ -1,17 +1,50 @@
 // app/admin/tiendas/nueva/page.tsx
-import TiendaForm from '@/components/TiendaForm';
-import { prisma } from '@/lib/prisma';
+'use client';
 
-export default async function NuevaTiendaPage() {
-  const users = await prisma.user.findMany({
-    select: { id: true, name: true, email: true },
-    orderBy: { name: 'asc' },
-  });
+import { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { useRouter } from 'next/navigation';
+
+export default function NuevaTiendaPage() {
+  const [nombre, setNombre] = useState('');
+  const [slug, setSlug] = useState('');
+  const router = useRouter();
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    const res = await fetch('/api/admin/tiendas', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        nombre,
+        slug: slug || nombre.toLowerCase().replace(/\s+/g, '-'),
+        ownerId: 2, // ← ID del dueño (puedes tener un <select>)
+      }),
+    });
+
+    if (res.ok) {
+      router.push('/admin/tiendas');
+    } else {
+      alert('Error al crear tienda');
+    }
+  };
 
   return (
-    <div className="container mx-auto p-6 max-w-2xl">
-      <h1 className="text-3xl font-bold text-gray-900 mb-8">Crear Nueva Tienda</h1>
-      <TiendaForm users={users} />
-    </div>
+    <form onSubmit={handleSubmit} className="space-y-4 max-w-md">
+      <Input
+        placeholder="Nombre de la tienda"
+        value={nombre}
+        onChange={(e) => setNombre(e.target.value)}
+        required
+      />
+      <Input
+        placeholder="Slug (opcional)"
+        value={slug}
+        onChange={(e) => setSlug(e.target.value)}
+      />
+      <Button type="submit">Crear Tienda</Button>
+    </form>
   );
 }

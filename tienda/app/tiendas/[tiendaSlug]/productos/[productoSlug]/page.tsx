@@ -10,7 +10,6 @@ interface Props {
   params: Promise<{ tiendaSlug: string; productoSlug: string }>;
 }
 
-// SEO
 export async function generateMetadata({ params }: Props) {
   const { tiendaSlug, productoSlug } = await params;
 
@@ -21,7 +20,7 @@ export async function generateMetadata({ params }: Props) {
         { slug: productoSlug },
         { nombre: { equals: productoSlug.replace(/-/g, ' '), mode: 'insensitive' } },
       ],
-      Tienda: {
+      tienda: {  // CORREGIDO
         OR: [
           { slug: tiendaSlug },
           { nombre: { equals: tiendaSlug.replace(/-/g, ' '), mode: 'insensitive' } },
@@ -33,16 +32,16 @@ export async function generateMetadata({ params }: Props) {
       precio: true,
       descripcion: true,
       imagen_url: true,
-      stock: true, // ← AÑADIDO
-      Tienda: { select: { nombre: true } },
+      stock: true,
+      tienda: { select: { nombre: true } },  // CORREGIDO
     },
   });
 
   if (!producto) return { title: 'Producto no encontrado' };
 
   return {
-    title: `${producto.nombre} - S/ ${producto.precio.toFixed(2)} | ${producto.Tienda.nombre}`,
-    description: producto.descripcion || `Compra ${producto.nombre} en ${producto.Tienda.nombre}`,
+    title: `${producto.nombre} - S/ ${producto.precio.toFixed(2)} | ${producto.tienda.nombre}`,
+    description: producto.descripcion || `Compra ${producto.nombre} en ${producto.tienda.nombre}`,
     openGraph: {
       title: producto.nombre,
       description: producto.descripcion || '',
@@ -61,7 +60,7 @@ export default async function ProductoDetalle({ params }: Props) {
         { slug: productoSlug },
         { nombre: { equals: productoSlug.replace(/-/g, ' '), mode: 'insensitive' } },
       ],
-      Tienda: {
+      tienda: {
         OR: [
           { slug: tiendaSlug },
           { nombre: { equals: tiendaSlug.replace(/-/g, ' '), mode: 'insensitive' } },
@@ -77,9 +76,9 @@ export default async function ProductoDetalle({ params }: Props) {
       imagen_url: true,
       talla: true,
       tipo_genero: true,
-      stock: true, // ← AÑADIDO AQUÍ
-      Categoria: { select: { nombre: true } },
-      Tienda: {
+      stock: true,
+      categoria: { select: { nombre: true } },  // CORREGIDO
+      tienda: {
         select: { nombre: true, slug: true, whatsapp: true, logo_url: true },
       },
     },
@@ -87,7 +86,7 @@ export default async function ProductoDetalle({ params }: Props) {
 
   if (!producto) notFound();
 
-  const tiendaSlugUrl = producto.Tienda.slug || slugify(producto.Tienda.nombre);
+  const tiendaSlugUrl = producto.tienda.slug || slugify(producto.tienda.nombre);
   const whatsappMessage = encodeURIComponent(
     `¡Hola! Quiero comprar: *${producto.nombre}* - S/ ${producto.precio.toFixed(2)}\nStock: ${producto.stock} unidades\nEnlace: https://tutienda.com/tiendas/${tiendaSlugUrl}/productos/${producto.slug || producto.id}`
   );
@@ -98,31 +97,21 @@ export default async function ProductoDetalle({ params }: Props) {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50 py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        
-        {/* Breadcrumb */}
         <nav className="flex items-center gap-2 text-sm text-gray-600 mb-6">
           <Link href="/" className="hover:text-indigo-600">Inicio</Link>
           <ChevronLeft className="w-4 h-4" />
           <Link href={`/tiendas/${tiendaSlugUrl}`} className="hover:text-indigo-600">
-            {producto.Tienda.nombre}
+            {producto.tienda.nombre}
           </Link>
           <ChevronLeft className="w-4 h-4" />
           <span className="text-gray-900 font-medium">{producto.nombre}</span>
         </nav>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
-          {/* Imagen */}
           <div className="relative group">
             <div className="aspect-square bg-white rounded-2xl overflow-hidden shadow-xl ring-1 ring-gray-200">
               {producto.imagen_url ? (
-                <Image
-                  src={producto.imagen_url}
-                  alt={producto.nombre}
-                  fill
-                  sizes="(max-width: 1024px) 100vw, 50vw"
-                  className="object-cover group-hover:scale-105 transition-transform duration-500"
-                  priority
-                />
+                <Image src={producto.imagen_url} alt={producto.nombre} fill sizes="(max-width: 1024px) 100vw, 50vw" className="object-cover group-hover:scale-105 transition-transform duration-500" priority />
               ) : (
                 <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
                   <Package className="w-24 h-24 text-gray-400" />
@@ -130,20 +119,12 @@ export default async function ProductoDetalle({ params }: Props) {
               )}
             </div>
 
-            {/* Logo de tienda */}
-            {producto.Tienda.logo_url && (
+            {producto.tienda.logo_url && (
               <div className="absolute top-4 left-4 w-16 h-16 rounded-full overflow-hidden ring-4 ring-white shadow-lg">
-                <Image
-                  src={producto.Tienda.logo_url}
-                  alt={producto.Tienda.nombre}
-                  width={64}
-                  height={64}
-                  className="object-cover"
-                />
+                <Image src={producto.tienda.logo_url} alt={producto.tienda.nombre} width={64} height={64} className="object-cover" />
               </div>
             )}
 
-            {/* Etiqueta de stock bajo */}
             {isLowStock && (
               <div className="absolute top-4 right-4 bg-orange-500 text-white px-3 py-1 rounded-full text-xs font-bold animate-pulse">
                 ¡Solo {producto.stock} left!
@@ -151,30 +132,22 @@ export default async function ProductoDetalle({ params }: Props) {
             )}
           </div>
 
-          {/* Detalles */}
           <div className="space-y-6">
-            {/* Título y precio */}
             <div>
-              <h1 className="text-3xl lg:text-4xl font-bold text-gray-900">
-                {producto.nombre}
-              </h1>
-              <p className="text-3xl font-bold text-indigo-600 mt-2">
-                S/ {Number(producto.precio).toFixed(2)}
-              </p>
+              <h1 className="text-3xl lg:text-4xl font-bold text-gray-900">{producto.nombre}</h1>
+              <p className="text-3xl font-bold text-indigo-600 mt-2">S/ {Number(producto.precio).toFixed(2)}</p>
             </div>
 
-            {/* Descripción */}
             <p className="text-gray-700 leading-relaxed">
               {producto.descripcion || 'Producto de alta calidad, ideal para tu estilo de vida.'}
             </p>
 
-            {/* Info */}
             <div className="grid grid-cols-2 gap-4 py-4 border-y border-gray-200">
               <div>
                 <p className="text-sm text-gray-500">Categoría</p>
                 <p className="font-medium flex items-center gap-1">
                   <Package className="w-4 h-4 text-indigo-600" />
-                  {producto.Categoria.nombre}
+                  {producto.categoria.nombre}
                 </p>
               </div>
               <div>
@@ -201,13 +174,10 @@ export default async function ProductoDetalle({ params }: Props) {
                       </>
                     )}
                   </p>
-                  {/* Barra de stock */}
                   {producto.stock > 0 && (
                     <div className="w-full bg-gray-200 rounded-full h-2">
                       <div
-                        className={`h-2 rounded-full transition-all duration-500 ${
-                          producto.stock <= 5 ? 'bg-orange-500' : 'bg-green-500'
-                        }`}
+                        className={`h-2 rounded-full transition-all duration-500 ${producto.stock <= 5 ? 'bg-orange-500' : 'bg-green-500'}`}
                         style={{ width: `${stockPercentage}%` }}
                       />
                     </div>
@@ -216,23 +186,20 @@ export default async function ProductoDetalle({ params }: Props) {
               </div>
             </div>
 
-            {/* Botones */}
             <div className="space-y-3">
               <button
                 disabled={producto.stock === 0}
                 className={`w-full py-4 rounded-xl font-semibold text-white flex items-center justify-center gap-2 transition-all shadow-lg ${
-                  producto.stock > 0
-                    ? 'bg-indigo-600 hover:bg-indigo-700 hover:shadow-xl'
-                    : 'bg-gray-400 cursor-not-allowed'
+                  producto.stock > 0 ? 'bg-indigo-600 hover:bg-indigo-700 hover:shadow-xl' : 'bg-gray-400 cursor-not-allowed'
                 }`}
               >
                 <ShoppingCart className="w-5 h-5" />
                 {producto.stock > 0 ? 'Agregar al carrito' : 'Sin stock'}
               </button>
 
-              {producto.Tienda.whatsapp && (
+              {producto.tienda.whatsapp && (
                 <a
-                  href={`https://wa.me/${producto.Tienda.whatsapp.replace(/\D/g, '')}?text=${whatsappMessage}`}
+                  href={`https://wa.me/${producto.tienda.whatsapp.replace(/\D/g, '')}?text=${whatsappMessage}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="w-full py-4 rounded-xl bg-green-600 hover:bg-green-700 text-white font-semibold flex items-center justify-center gap-2 transition-all shadow-lg"
@@ -244,29 +211,21 @@ export default async function ProductoDetalle({ params }: Props) {
                 </a>
               )}
 
-              {/* Notificarme */}
               {producto.stock === 0 && (
                 <button className="w-full py-4 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-semibold flex items-center justify-center gap-2 transition-all shadow-lg">
-                  <Bell className="w-5 h-5" />
-                  Notificarme cuando haya stock
+                  <Bell className="w-5 h-5" /> Notificarme cuando haya stock
                 </button>
               )}
             </div>
 
-            {/* Volver */}
-            <Link
-              href={`/tiendas/${tiendaSlugUrl}`}
-              className="inline-flex items-center gap-2 text-indigo-600 hover:text-indigo-800 font-medium transition-colors"
-            >
-              <ChevronLeft className="w-5 h-5" />
-              Volver a la tienda
+            <Link href={`/tiendas/${tiendaSlugUrl}`} className="inline-flex items-center gap-2 text-indigo-600 hover:text-indigo-800 font-medium transition-colors">
+              <ChevronLeft className="w-5 h-5" /> Volver a la tienda
             </Link>
           </div>
         </div>
 
-        {/* Footer */}
         <footer className="mt-16 pt-8 border-t border-gray-200 text-center text-sm text-gray-500">
-          <p>© {new Date().getFullYear()} {producto.Tienda.nombre}. Todos los derechos reservados.</p>
+          <p>© {new Date().getFullYear()} {producto.tienda.nombre}. Todos los derechos reservados.</p>
         </footer>
       </div>
     </div>

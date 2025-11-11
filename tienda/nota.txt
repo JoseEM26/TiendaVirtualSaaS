@@ -197,5 +197,6 @@ MODIFICAR L QUE ES LA BD PRISMA CUANDO HAGO CAMBIOS EN POSTGRES
 hcer cambios en la bd y en el schema.prisma
 npx prisma db pull
 npx prisma generate
+npm install next-auth @prisma/client @prisma/adapter-next-auth
 
-
+npm install next-auth@beta @auth/core

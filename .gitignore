@@ -1,0 +1,160 @@
+# === NEXT.JS ===
+# Dependencies
+/node_modules
+/.pnp
+.pnp.js
+.yarn/install-state.gz
+
+# Production build
+/.next/
+/out/
+/build
+
+# Environment variables
+.env
+.env*.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.local
+
+# Vercel / Deployment
+.vercel
+.vercel_build_output
+.vercel_build_output_cache
+
+# === PRISMA ===
+# Prisma Client
+prisma/dev.db
+prisma/*.db
+prisma/*.db-journal
+prisma/migrations
+
+# Generated Prisma Client
+prisma/client
+!prisma/client/index.ts
+!prisma/client/index.d.ts
+
+# === TYPESCRIPT ===
+# Compiled output
+/dist
+*.tsbuildinfo
+
+# === NODE ===
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# Optional REPL history
+.node_repl_history
+
+# === OS / IDE ===
+# Mac
+.DS_Store
+*.DS_Store
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Linux
+*~
+
+# VS Code
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.history/
+
+# JetBrains (WebStorm, IntelliJ, etc.)
+.idea/
+*.iws
+*.iml
+*.ipr
+
+# === MISC ===
+# Cache
+.cache
+.eslintcache
+.stylelintcache
+.tsbuildinfo
+
+# Temporary files
+*.tmp
+*.temp
+*.swp
+*.swo
+
+# Coverage reports
+/coverage
+/.nyc_output
+
+# Lock files (opcional: si usas solo npm, puedes borrar los demás)
+/package-lock.json
+/yarn.lock
+/pnpm-lock.yaml
+
+# Uploads / Media (si usas local)
+/public/uploads
+/uploads
+
+# Docker
+Dockerfile
+.dockerignore
+
+# Storybook
+.storybook
+
+# Turborepo (si usas)
+/.turbo
+
+# Playwright / Testing
+/test-results/
+/playwright-report/
+/playwright/.cache/
+
+# Sentry
+.sentryclirc
+
+# === PROYECTO ESPECÍFICO (TuTienda.pe) ===
+# Imágenes locales de prueba
+/public/demo/
+/public/temp/
+
+# Backups
+*.backup
+backup/
+
+# Logs de desarrollo
+logs/
+*.log
+
+# === FINAL ===
+# Ignorar todo en carpetas locales
+local/
+temp/
+tmp/
+
+# Pero permitir archivos necesarios
+!.gitignore
+!.env.example
+!prisma/schema.prisma
+!README.md

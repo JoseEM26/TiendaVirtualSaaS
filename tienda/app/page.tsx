@@ -12,7 +12,7 @@ export default async function HomePage() {
     tiendas = await prisma.tienda.findMany({
       where: { estado: true },
       include: {
-        _count: { select: { Producto: true } },
+        _count: { select: { productos: true } }, // cambiado a 'productos'
       },
       orderBy: { created_at: 'desc' },
     });
@@ -21,7 +21,6 @@ export default async function HomePage() {
     error = 'No se pudieron cargar las tiendas. Intenta más tarde.';
   }
 
-  // Función para obtener iniciales (ej: "Mi Tienda" → "MT")
   const getInitials = (name: string) => {
     return name
       .split(' ')
@@ -50,7 +49,7 @@ export default async function HomePage() {
         </div>
       </header>
 
-      {/* Tiendas Destacadas */}
+      {/* Tiendas Activas */}
       <section className="container mx-auto px-6 py-12">
         <h2 className="text-3xl font-bold text-center mb-10 text-gray-800">
           Tiendas Activas
@@ -84,27 +83,23 @@ export default async function HomePage() {
                 className="group bg-white border border-gray-200 rounded-xl p-6 hover:shadow-xl hover:border-blue-300 transition-all duration-300 transform hover:-translate-y-1"
               >
                 <div className="flex flex-col items-center text-center">
-                  {/* Círculo con iniciales */}
                   <div className="w-20 h-20 mb-4 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white font-bold text-xl shadow-md group-hover:from-blue-600 group-hover:to-blue-700 transition">
                     {getInitials(tienda.nombre)}
                   </div>
 
-                  {/* Nombre */}
                   <h3 className="font-bold text-lg text-gray-900 group-hover:text-blue-600 transition">
                     {tienda.nombre}
                   </h3>
 
-                  {/* Descripción corta */}
                   {tienda.descripcion && (
                     <p className="text-sm text-gray-500 mt-1 line-clamp-2">
                       {tienda.descripcion}
                     </p>
                   )}
 
-                  {/* Cantidad de productos */}
                   <p className="text-xs text-gray-400 mt-3 font-medium">
-                    {tienda._count.Producto}{' '}
-                    {tienda._count.Producto === 1 ? 'producto' : 'productos'}
+                    {tienda._count.productos}{' '}
+                    {tienda._count.productos === 1 ? 'producto' : 'productos'}
                   </p>
                 </div>
               </Link>
@@ -113,7 +108,6 @@ export default async function HomePage() {
         )}
       </section>
 
-      {/* Footer */}
       <footer className="bg-gray-50 border-t mt-16 py-8">
         <div className="container mx-auto px-6 text-center text-sm text-gray-500">
           <p>© {new Date().getFullYear()} TuTienda SaaS. Todos los derechos reservados.</p>

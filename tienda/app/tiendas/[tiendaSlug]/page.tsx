@@ -24,7 +24,7 @@ export default async function TiendaDashboard({ params }: Props) {
       estado: true,
     },
     include: {
-      Categoria: {
+      categorias: {  // CORREGIDO
         where: { activa: true },
         orderBy: { nombre: 'asc' },
         select: {
@@ -33,14 +33,14 @@ export default async function TiendaDashboard({ params }: Props) {
           slug: true,
           _count: {
             select: {
-              Producto: {
+              productos: {  // CORREGIDO: Producto → productos
                 where: { activo: true },
               },
             },
           },
         },
       },
-      Producto: {
+      productos: {  // CORREGIDO
         where: { activo: true, destacado: true },
         orderBy: { created_at: 'desc' },
         take: 6,
@@ -69,7 +69,6 @@ export default async function TiendaDashboard({ params }: Props) {
       <header className="bg-white/80 backdrop-blur-lg shadow-lg border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
           <div className="flex flex-col sm:flex-row items-center gap-6">
-            {/* Logo */}
             <div className="relative group">
               {tienda.logo_url ? (
                 <div className="w-24 h-24 rounded-2xl overflow-hidden ring-4 ring-indigo-100 group-hover:ring-indigo-200 transition-all">
@@ -88,7 +87,6 @@ export default async function TiendaDashboard({ params }: Props) {
               )}
             </div>
 
-            {/* Info Tienda */}
             <div className="flex-1 text-center sm:text-left">
               <h1 className="text-4xl sm:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600">
                 {tienda.nombre}
@@ -115,7 +113,7 @@ export default async function TiendaDashboard({ params }: Props) {
               <Package className="w-8 h-8 text-indigo-600" />
               Categorías
             </h2>
-            {tienda.Categoria.length > 4 && (
+            {tienda.categorias.length > 4 && (
               <Link
                 href={`/tiendas/${tiendaSlugUrl}/categorias`}
                 className="text-indigo-600 hover:text-indigo-800 font-medium text-sm flex items-center gap-1 transition-colors"
@@ -124,7 +122,7 @@ export default async function TiendaDashboard({ params }: Props) {
               </Link>
             )}
           </div>
-          <CategoriasList categorias={tienda.Categoria} tiendaSlug={tiendaSlugUrl} />
+          <CategoriasList categorias={tienda.categorias} tiendaSlug={tiendaSlugUrl} />
         </section>
 
         {/* Productos Destacados */}
@@ -138,11 +136,11 @@ export default async function TiendaDashboard({ params }: Props) {
               href={`/tiendas/${tiendaSlugUrl}/productos`}
               className="text-indigo-600 hover:text-indigo-800 font-medium flex items-center gap-1 transition-colors"
             >
-              Ver todos →
+              Ver todos
             </Link>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6">
-            <ProductosList productos={tienda.Producto} tiendaSlug={tiendaSlugUrl} />
+            <ProductosList productos={tienda.productos} tiendaSlug={tiendaSlugUrl} />
           </div>
         </section>
       </main>
@@ -150,7 +148,7 @@ export default async function TiendaDashboard({ params }: Props) {
       {/* WhatsApp Flotante */}
       {tienda.whatsapp && (
         <a
-          href={`https://wa.me/${tienda.whatsapp.replace(/\D/g, '')}?text=¡Hola!%20Quiero%20ver%20más%20de%20*${encodeURIComponent(tienda.nombre)}*%20(${tienda.Producto.length}%20destacados)`}
+          href={`https://wa.me/${tienda.whatsapp.replace(/\D/g, '')}?text=¡Hola!%20Quiero%20ver%20más%20de%20*${encodeURIComponent(tienda.nombre)}*%20(${tienda.productos.length}%20destacados)`}
           target="_blank"
           rel="noopener noreferrer"
           className="fixed bottom-6 right-6 z-50 w-14 h-14 bg-green-600 hover:bg-green-700 text-white rounded-full flex items-center justify-center shadow-xl transition-all hover:scale-110"
@@ -162,39 +160,9 @@ export default async function TiendaDashboard({ params }: Props) {
         </a>
       )}
 
-      {/* Footer */}
       <footer className="mt-20 py-8 text-center text-sm text-gray-500 border-t border-gray-200 bg-white/50 backdrop-blur">
         <p>© {new Date().getFullYear()} {tienda.nombre}. Todos los derechos reservados.</p>
       </footer>
     </div>
   );
-}
-
-// SEO
-export async function generateMetadata({ params }: Props) {
-  const { tiendaSlug } = await params;
-  const tienda = await prisma.tienda.findFirst({
-    where: {
-      OR: [
-        { slug: tiendaSlug },
-        { nombre: { equals: tiendaSlug.replace(/-/g, ' '), mode: 'insensitive' } },
-      ],
-    },
-    select: { nombre: true, descripcion: true, logo_url: true },
-  });
-
-  const title = tienda ? `${tienda.nombre} | TuTienda.pe` : 'Tienda no encontrada';
-  const description = tienda?.descripcion || 'Explora productos increíbles en nuestra tienda';
-
-  return {
-    title,
-    description,
-    openGraph: {
-      title,
-      description,
-      images: tienda?.logo_url ? [{ url: tienda.logo_url }] : [],
-      type: 'website',
-      locale: 'es_PE',
-    },
-  };
 }

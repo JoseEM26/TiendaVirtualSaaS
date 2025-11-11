@@ -2,25 +2,43 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
-    domains: [
-      'logo.com',
-      'via.placeholder.com',
-      'res.cloudinary.com',
-      'images.unsplash.com',
-      // Agrega aquí cualquier dominio que uses para logos
-    ],
-    // O si usas URLs completas con subdominios, usa remotePatterns:
+    // ELIMINA `domains` → obsoleto
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: '**', // Permite TODOS los dominios (solo en desarrollo)
-        port: '',
-        pathname: '**',
+        hostname: 'images.unsplash.com',
+        pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'images.pexels.com',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'res.cloudinary.com',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'logo.com',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'via.placeholder.com',
+        pathname: '/**',
+      },
+      // Agrega más dominios aquí si necesitas
     ],
   },
-  // Opcional: mejora de rendimiento
   reactStrictMode: true,
+  experimental: {
+    serverActions: true,
+  },
+  turbopack: {
+    root: '.', // Silencia el warning de lockfiles
+  },
 };
 
-module.exports = nextConfig;
+export default nextConfig;

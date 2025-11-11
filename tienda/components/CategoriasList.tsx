@@ -9,21 +9,21 @@ interface Categoria {
   nombre: string;
   slug: string | null;
   _count?: {
-    Producto: number;
+    productos: number; // CORREGIDO: Producto → productos
   };
 }
 
-export default function CategoriasList({ 
-  categorias, 
-  tiendaSlug 
-}: { 
-  categorias: Categoria[]; 
+export default function CategoriasList({
+  categorias,
+  tiendaSlug
+}: {
+  categorias: Categoria[];
   tiendaSlug: string;
 }) {
   return (
     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
       {categorias.map((cat) => {
-        const totalProductos = cat._count?.Producto || 0;
+        const totalProductos = cat._count?.productos || 0; // CORREGIDO
         const isLowStock = totalProductos > 0 && totalProductos <= 3;
 
         return (

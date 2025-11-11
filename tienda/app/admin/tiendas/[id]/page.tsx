@@ -2,28 +2,40 @@
 import TiendaForm from '@/components/TiendaForm';
 import { prisma } from '@/lib/prisma';
 import { notFound } from 'next/navigation';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Edit } from 'lucide-react';
 
 export default async function EditarTiendaPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params; // Unwrap the Promise
+  const { id } = await params;
   const tiendaId = Number(id);
   if (isNaN(tiendaId)) notFound();
 
-  const tienda = await prisma.tienda.findUnique({
-    where: { id: tiendaId },
-    include: { User: { select: { id: true, name: true, email: true } } },
-  });
+  const [tienda, users] = await Promise.all([
+    prisma.tienda.findUnique({
+      where: { id: tiendaId },
+      include: { User: { select: { id: true, name: true, email: true } } },
+    }),
+    prisma.user.findMany({
+      select: { id: true, name: true, email: true },
+      orderBy: { name: 'asc' },
+    }),
+  ]);
 
   if (!tienda) notFound();
 
-  const users = await prisma.user.findMany({
-    select: { id: true, name: true, email: true },
-    orderBy: { name: 'asc' },
-  });
-
   return (
-    <div className="container mx-auto p-6 max-w-2xl">
-      <h1 className="text-3xl font-bold text-gray-900 mb-8">Editar Tienda</h1>
-      <TiendaForm tienda={tienda} users={users} />
+    <div className="max-w-3xl mx-auto">
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-2xl">
+            <Edit className="w-6 h-6" />
+            Editar Tienda: {tienda.nombre}
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <TiendaForm tienda={tienda} users={users} />
+        </CardContent>
+      </Card>
     </div>
   );
 }
